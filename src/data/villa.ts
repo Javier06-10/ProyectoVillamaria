@@ -235,10 +235,10 @@ export interface Place {
 }
 
 export const PLACES: Place[] = [
-  { name: { es: 'Playas de Uvero Alto', en: 'Uvero Alto beaches' }, km: 20, minutes: 25 },
-  { name: { es: 'Higüey y su Basílica', en: 'Higüey and its Basilica' }, km: 35, minutes: 40 },
-  { name: { es: 'Playa Macao', en: 'Macao beach' }, km: 35, minutes: 45 },
-  { name: { es: 'Miches y Playa Esmeralda', en: 'Miches and Esmeralda beach' }, km: 45, minutes: 50 },
-  { name: { es: 'Bávaro', en: 'Bávaro' }, km: 50, minutes: 55 },
-  { name: { es: 'Aeropuerto de Punta Cana', en: 'Punta Cana Airport' }, km: 60, minutes: 70 },
+  { name: { es: 'Playas de Uvero Alto', en: 'Uvero Alto beaches' }, km: 20, minutes: 15 },
+  { name: { es: 'Higüey y su Basílica', en: 'Higüey and its Basilica' }, km: 35, minutes: 30 },
+  { name: { es: 'Playa Macao', en: 'Macao beach' }, km: 35, minutes: 35 },
+  { name: { es: 'Miches y Playa Esmeralda', en: 'Miches and Esmeralda beach' }, km: 45, minutes: 40 },
+  { name: { es: 'Bávaro', en: 'Bávaro' }, km: 50, minutes: 45 },
+  { name: { es: 'Aeropuerto de Punta Cana', en: 'Punta Cana Airport' }, km: 60, minutes: 60 },
 ];
