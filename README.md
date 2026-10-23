@@ -43,7 +43,11 @@ Para agregar una foto: cópiala en la carpeta del ambiente y agrega una entrada 
 
 ## Despliegue en Render
 
-El repositorio incluye `render.yaml` (Blueprint) con todo configurado:
+**Publicado en:** https://rancho-villa-maria.onrender.com (servicio estático `rancho-villa-maria`, despliegue automático con cada push a `main`).
+
+El servicio actual se creó directamente (no como Blueprint), así que las cabeceras y la redirección se configuraron a mano en el panel (*Settings → Headers* y *Redirects/Rewrites*) con los mismos valores de `render.yaml`. Si se cambian, hay que actualizar ambos lugares.
+
+Para recrear el sitio desde cero, el repositorio incluye `render.yaml` (Blueprint) con todo configurado:
 
 1. En [Render](https://dashboard.render.com): **New → Blueprint** y elegir este repositorio.
 2. Render crea el sitio estático `rancho-villa-maria` y lo publica en `https://rancho-villa-maria.onrender.com`. Cada push a `main` lo vuelve a desplegar.
