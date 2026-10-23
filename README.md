@@ -41,13 +41,21 @@ Para Playwright, la primera vez: `npx playwright install chromium`.
 
 Para agregar una foto: cópiala en la carpeta del ambiente y agrega una entrada en `STATIONS` con su texto alternativo en español e inglés. El build falla si una foto declarada no existe.
 
-## Despliegue
+## Despliegue en Render
 
-Pensado para **Cloudflare Pages** o **Netlify** (plan gratuito):
+El repositorio incluye `render.yaml` (Blueprint) con todo configurado:
 
-- Comando de build: `npm run build`. Carpeta publicada: `dist`.
-- Variable de entorno `SITE_URL` con el dominio final (por ejemplo `https://villamaria.com.do`). Activa la URL canónica, `hreflang` y la imagen absoluta para compartir en WhatsApp y redes.
-- `public/_headers` aplica la política de seguridad (CSP estricta sin scripts de terceros, HSTS, nosniff, etc.) y la caché larga de recursos con hash.
+1. En [Render](https://dashboard.render.com): **New → Blueprint** y elegir este repositorio.
+2. Render crea el sitio estático `rancho-villa-maria` y lo publica en `https://rancho-villa-maria.onrender.com`. Cada push a `main` lo vuelve a desplegar.
+3. Si Render asigna otro nombre o se conecta un dominio propio, actualizar `SITE_URL` en `render.yaml` (o en *Environment* del servicio) y volver a desplegar.
+
+Qué configura el Blueprint:
+
+- Build `npm ci && npm run build`, carpeta publicada `dist`, Node 22 (también fijado en `.node-version`).
+- Cabeceras de seguridad (CSP estricta, HSTS, nosniff, Referrer-Policy, Permissions-Policy) y caché de un año para `/_astro/*` y `/fonts/*`.
+- Redirección de `/en` a `/en/`.
+
+`public/_headers` queda como equivalente para Cloudflare Pages o Netlify; Render no lo lee.
 
 ## Decisiones
 
@@ -62,4 +70,4 @@ Pensado para **Cloudflare Pages** o **Netlify** (plan gratuito):
 - Normas de la casa y hora de entrada de la estadía.
 - Confirmar el número de habitaciones (la descripción dice 6 y luego 7).
 - Fotos de las habitaciones familiares, la sala, los baños, el billar, el dominó, el área de BBQ y las casas de campaña.
-- Comprar el dominio y definir `SITE_URL`.
+- Comprar el dominio, conectarlo en Render y actualizar `SITE_URL`.
