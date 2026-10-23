@@ -1,0 +1,336 @@
+---
+import { Picture, getImage } from 'astro:assets';
+import Station from './Station.astro';
+import Icon from './Icon.astro';
+import { AMENITIES, HERO_PHOTO, HERO_SLIDES, PLACES, STATIONS, VILLA } from '../data/villa';
+import { LIMITS, whatsappUrl, type Lang } from '../lib/inquiry';
+import { QUALITY, photo } from '../lib/images';
+import { STRINGS } from '../i18n/strings';
+import '../styles/global.css';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = STRINGS[lang];
+const allPhotos = STATIONS.flatMap((s) => s.photos);
+const altOf = (file: string) => allPhotos.find((p) => p.file === file)?.alt[lang] ?? '';
+const directUrl = whatsappUrl(VILLA.whatsapp, t.contact.defaultText);
+const maxKm = Math.max(...PLACES.map((p) => p.km));
+
+// El nombre se anima letra por letra; el texto accesible va completo aparte.
+const titleWords = VILLA.name.split(' ').map((w) => Array.from(w));
+let letterIndex = 0;
+
+// Imagen para compartir en WhatsApp / redes (1200×630).
+const og = await getImage({ src: photo(HERO_PHOTO), width: 1200, height: 630, fit: 'cover', format: 'jpg', quality: 78 });
+const site = Astro.site;
+const canonical = site ? new URL(Astro.url.pathname, site).href : undefined;
+const esUrl = site ? new URL('/', site).href : undefined;
+const enUrl = site ? new URL('/en/', site).href : undefined;
+const ogImage = site ? new URL(og.src, site).href : og.src;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'VacationRental',
+  name: VILLA.name,
+  description: t.metaDescription,
+  image: ogImage,
+  telephone: VILLA.phoneDisplay,
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: VILLA.locality,
+    addressRegion: VILLA.region,
+    addressCountry: VILLA.country,
+  },
+  amenityFeature: AMENITIES.map((a) => ({ '@type': 'LocationFeatureSpecification', name: a.text[lang], value: true })),
+};
+---
+
+<!doctype html>
+<html lang={t.htmlLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{t.metaTitle}</title>
+    <meta name="description" content={t.metaDescription} />
+    <meta name="theme-color" content="#0f1d14" />
+    {canonical && <link rel="canonical" href={canonical} />}
+    {esUrl && <link rel="alternate" hreflang="es" href={esUrl} />}
+    {enUrl && <link rel="alternate" hreflang="en" href={enUrl} />}
+    {esUrl && <link rel="alternate" hreflang="x-default" href={esUrl} />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/fonts/bricolage-wght.woff2" as="font" type="font/woff2" crossorigin />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={t.metaTitle} />
+    <meta property="og:description" content={t.metaDescription} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content={t.locale} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body>
+    <a class="skip" href="#recorrido">{t.skip}</a>
+    <div class="progress" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <a class="wordmark" href="#inicio">{VILLA.name}</a>
+      <a class="lang" href={t.langSwitch.href} hreflang={t.langSwitch.hreflang} lang={t.langSwitch.hreflang}>
+        {t.langSwitch.label}
+      </a>
+    </header>
+
+    <main>
+      <section class="hero" id="inicio" aria-labelledby="hero-title" data-hero>
+        <div class="hero__slides" data-hero-slides>
+          {
+            HERO_SLIDES.map((file, i) => (
+              <div class="hero__slide" data-hero-slide hidden={i > 0} data-active={i === 0 ? '' : undefined}>
+                <Picture
+                  src={photo(file)}
+                  alt={i === 0 ? altOf(file) : ''}
+                  formats={['avif', 'webp']}
+                  fallbackFormat="webp"
+                  quality={QUALITY}
+                  widths={[480, 768, 1024, 1280]}
+                  sizes="100vw"
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  fetchpriority={i === 0 ? 'high' : 'auto'}
+                  decoding="async"
+                />
+              </div>
+            ))
+          }
+        </div>
+
+        <div class="hero__content">
+          <div class="hero__card">
+            <h1 class="hero__title" id="hero-title">
+              <span class="sr-only">{VILLA.name}</span>
+              <span class="hero__letters" aria-hidden="true">
+                {
+                  titleWords.map((word) => (
+                    <span class="hero__word">
+                      {word.map((ch) => (
+                        <span class="hero__letter" data-i={letterIndex++}>
+                          {ch}
+                        </span>
+                      ))}
+                    </span>
+                  ))
+                }
+              </span>
+            </h1>
+            <p class="hero__kicker">{t.hero.kicker}</p>
+            <p class="hero__lead">{t.hero.lead}</p>
+            <div class="hero__actions">
+              <a class="button button--lime" href="#consultar">
+                <Icon name="chat" />
+                {t.hero.cta}
+              </a>
+              <a class="button button--ghost" href="#recorrido">{t.hero.secondary}</a>
+            </div>
+          </div>
+
+          <div class="hero__meta">
+            <div class="hero__dots" aria-hidden="true">
+              {HERO_SLIDES.map((_, i) => <span class="hero__dot" data-hero-dot={i} />)}
+            </div>
+            <button type="button" class="round-btn round-btn--glass" data-hero-toggle data-pause={t.hero.pause} data-play={t.hero.play} aria-label={t.hero.pause} hidden>
+              <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6v12M15 6v12" /></svg>
+              <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z" /></svg>
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+      <nav class="tour-nav" aria-label={t.tourLabel}>
+        <ul>
+          {
+            STATIONS.map((s) => (
+              <li>
+                <a href={`#${s.id}`} data-nav={s.id}>
+                  {s.nav[lang]}
+                </a>
+              </li>
+            ))
+          }
+          <li><a href="#ubicacion" data-nav="ubicacion">{t.location.title}</a></li>
+          <li class="nav-cta"><a href="#consultar">{t.sticky}</a></li>
+        </ul>
+      </nav>
+
+      <div class="tour" id="recorrido" tabindex="-1">
+        {STATIONS.map((s, i) => <Station station={s} lang={lang} index={i} total={STATIONS.length} />)}
+      </div>
+
+      <section class="section" id="incluye" aria-labelledby="incluye-title">
+        <div class="section__head reveal">
+          <h2 id="incluye-title">{t.essentials.title}</h2>
+        </div>
+        <div class="includes">
+          <ul class="amenities">
+            {
+              AMENITIES.map((a) => (
+                <li class="amenity reveal">
+                  <span class="amenity__icon">
+                    <Icon name={a.icon} />
+                  </span>
+                  <span>{a.text[lang]}</span>
+                </li>
+              ))
+            }
+          </ul>
+          <aside class="price reveal">
+            <h3>{t.essentials.priceTitle}</h3>
+            <p>{t.essentials.priceText}</p>
+            <a class="button button--lime" href="#consultar">{t.sticky}</a>
+            <p class="muted">{t.essentials.rulesNote}</p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section location" id="ubicacion" aria-labelledby="ubicacion-title" data-station>
+        <div class="location__intro reveal">
+          <h2 id="ubicacion-title">{t.location.title}</h2>
+          <p>{t.location.text}</p>
+          <a class="pill-link" href={VILLA.mapsUrl} rel="noopener" target="_blank">
+            <Icon name="pin" />
+            {t.location.openMap}
+          </a>
+          <p class="muted">{t.location.privacy}</p>
+        </div>
+        <div class="location__card reveal">
+          <table class="distances" data-distances>
+            <caption>{t.location.distancesCaption}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{t.location.place}</th>
+                <th scope="col" class="num">{t.location.distance}</th>
+                <th scope="col" class="num">{t.location.time}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                PLACES.map((p) => (
+                  <tr>
+                    <th scope="row">
+                      {p.name[lang]}
+                      <span class="bar" aria-hidden="true" data-ratio={(p.km / maxKm).toFixed(3)} />
+                    </th>
+                    <td class="num">≈ {p.km} {t.km}</td>
+                    <td class="num">≈ {t.min(p.minutes)}</td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+          <p class="muted">{t.location.approx}</p>
+        </div>
+      </section>
+
+      <section class="contact" id="consultar" aria-labelledby="consultar-title">
+        <div class="contact__glow" aria-hidden="true"></div>
+        <div class="contact__intro reveal">
+          <h2 id="consultar-title">{t.contact.title}</h2>
+          <p>{t.contact.text}</p>
+          <a class="pill-link pill-link--light" href={directUrl} rel="noopener">
+            <Icon name="chat" />
+            {t.contact.direct}
+          </a>
+          <p class="contact__phone">WhatsApp: <a href={`tel:+${VILLA.whatsapp}`}>{VILLA.phoneDisplay}</a></p>
+        </div>
+
+        <form
+          class="form reveal"
+          id="inquiry"
+          action={`https://wa.me/${VILLA.whatsapp}`}
+          method="get"
+          novalidate
+          data-lang={lang}
+          data-phone={VILLA.whatsapp}
+        >
+          <input type="hidden" name="text" value={t.contact.defaultText} />
+          <p class="form__summary" id="form-summary" role="alert" hidden>{t.contact.errorsSummary}</p>
+
+          <div class="field">
+            <label for="f-name">{t.contact.name}</label>
+            <input id="f-name" data-field="name" autocomplete="name" maxlength={LIMITS.nameMax} required aria-describedby="f-name-error" />
+            <p class="field__error" id="f-name-error" hidden></p>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="f-in">{t.contact.checkIn}</label>
+              <input id="f-in" data-field="checkIn" type="date" required aria-describedby="f-in-error" />
+              <p class="field__error" id="f-in-error" hidden></p>
+            </div>
+            <div class="field">
+              <label for="f-out">{t.contact.checkOut}</label>
+              <input id="f-out" data-field="checkOut" type="date" required aria-describedby="f-out-error" />
+              <p class="field__error" id="f-out-error" hidden></p>
+            </div>
+          </div>
+
+          <div class="field field--short">
+            <label for="f-guests">{t.contact.guests}</label>
+            <input id="f-guests" data-field="guests" type="number" inputmode="numeric" min={LIMITS.guestsMin} max={LIMITS.guestsMax} step="1" required aria-describedby="f-guests-error" />
+            <p class="field__error" id="f-guests-error" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="f-msg">{t.contact.message} <span class="muted">({t.contact.optional})</span></label>
+            <textarea id="f-msg" data-field="message" rows="3" maxlength={LIMITS.messageMax} aria-describedby="f-msg-error"></textarea>
+            <p class="field__error" id="f-msg-error" hidden></p>
+          </div>
+
+          <button class="button button--dark button--wide" type="submit" data-label={t.contact.submit} data-busy={t.contact.submitting}>
+            {t.contact.submit}
+          </button>
+          <p class="form__status" role="status" data-opened={t.contact.opened} data-link={t.contact.openLink}></p>
+        </form>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>{t.footer}</p>
+    </footer>
+
+    <a class="sticky-cta" href="#consultar" data-sticky>
+      <Icon name="chat" />
+      {t.sticky}
+    </a>
+
+    <dialog class="gallery" aria-label="" data-gallery-dialog
+      data-counter={lang === 'es' ? '{i} de {n}' : '{i} of {n}'}>
+      <div class="gallery__bar">
+        <p class="gallery__title" data-gallery-title></p>
+        <p class="gallery__counter" data-gallery-counter aria-live="polite"></p>
+        <button type="button" class="gallery__close" data-gallery-close>{t.gallery.close}</button>
+      </div>
+      <figure class="gallery__stage">
+        <picture>
+          <source type="image/avif" data-gallery-avif />
+          <source type="image/webp" data-gallery-webp />
+          <img data-gallery-img alt="" sizes="100vw" />
+        </picture>
+        <figcaption data-gallery-caption></figcaption>
+      </figure>
+      <button type="button" class="round-btn round-btn--glass gallery__nav gallery__nav--prev" data-gallery-prev aria-label={t.gallery.prev}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+      </button>
+      <button type="button" class="round-btn round-btn--glass gallery__nav gallery__nav--next" data-gallery-next aria-label={t.gallery.next}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+      </button>
+    </dialog>
+
+    <script>
+      import '../scripts/main';
+    </script>
+  </body>
+</html>

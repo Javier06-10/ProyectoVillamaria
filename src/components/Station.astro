@@ -1,0 +1,173 @@
+---
+import { Picture, getImage } from 'astro:assets';
+import type { Station } from '../data/villa';
+import type { Lang } from '../lib/inquiry';
+import { GALLERY_WIDTHS, QUALITY, photo } from '../lib/images';
+import { STRINGS } from '../i18n/strings';
+
+interface Props {
+  station: Station;
+  lang: Lang;
+  index: number;
+  total: number;
+}
+
+const { station, lang, index, total } = Astro.props;
+const t = STRINGS[lang];
+const [main] = station.photos;
+if (!main) throw new Error(`La estación ${station.id} no tiene fotos`);
+
+const title = station.title[lang];
+const headingId = `${station.id}-titulo`;
+const n = station.photos.length;
+const immersive = station.layout === 'immersive';
+// Alterna el lado del texto en escritorio para dar ritmo al recorrido.
+const side = index % 2 === 0 ? 'left' : 'right';
+
+// Versiones grandes para la galería: AVIF + WebP. El JS las lee de los data-*.
+const large = await Promise.all(
+  station.photos.map(async (p) => {
+    const src = photo(p.file);
+    const widths = GALLERY_WIDTHS.filter((w) => w <= src.width);
+    const [avif, webp] = await Promise.all([
+      getImage({ src, widths, format: 'avif', quality: QUALITY }),
+      getImage({ src, widths, format: 'webp', quality: QUALITY }),
+    ]);
+    return {
+      href: webp.src,
+      avif: avif.srcSet.attribute,
+      webp: webp.srcSet.attribute,
+      width: src.width,
+      height: src.height,
+      alt: p.alt[lang],
+    };
+  }),
+);
+const galleryAttrs = (i: number) => {
+  const big = large[i]!;
+  return {
+    href: big.href,
+    'data-gallery': station.id,
+    'data-index': i,
+    'data-avif': big.avif,
+    'data-webp': big.webp,
+    'data-width': big.width,
+    'data-height': big.height,
+    'data-alt': big.alt,
+    'data-title': title,
+  };
+};
+---
+
+{
+  immersive ? (
+    <section class="station station--immersive" id={station.id} aria-labelledby={headingId} data-station>
+      <div class="immersive__backdrop">
+        <Picture
+          src={photo(main.file)}
+          alt={main.alt[lang]}
+          formats={['avif', 'webp']}
+          fallbackFormat="webp"
+          quality={QUALITY}
+          widths={GALLERY_WIDTHS.filter((w) => w <= photo(main.file).width)}
+          sizes="100vw"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+      <div class="immersive__card reveal">
+        <p class="station__step">{t.station.stop(index + 1, total)}</p>
+        <h2 class="station__title" id={headingId}>{title}</h2>
+        <p class="station__lead">{station.text[lang]}</p>
+        <ul class="facts">
+          {station.facts[lang].map((fact) => <li>{fact}</li>)}
+        </ul>
+        <ul class="immersive__thumbs" aria-label={t.station.photosOf(title)}>
+          {station.photos.map((p, i) => (
+            <li>
+              <a {...galleryAttrs(i)}>
+                <Picture
+                  src={photo(p.file)}
+                  alt={p.alt[lang]}
+                  formats={['avif', 'webp']}
+                  fallbackFormat="webp"
+                  quality={QUALITY}
+                  widths={[200, 400]}
+                  sizes="120px"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  ) : (
+    <section class={`station station--${side}`} id={station.id} aria-labelledby={headingId} data-station>
+      <div class="station__text reveal">
+        <p class="station__step">{t.station.stop(index + 1, total)}</p>
+        <h2 class="station__title" id={headingId}>{title}</h2>
+        <p class="station__lead">{station.text[lang]}</p>
+        <ul class="facts">
+          {station.facts[lang].map((fact) => <li>{fact}</li>)}
+        </ul>
+        <a class="pill-link" href={large[0]!.href} data-gallery-open={station.id}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></svg>
+          {t.station.seeAll(n)}
+        </a>
+      </div>
+
+      <div
+        class="carousel reveal reveal--media"
+        role="region"
+        aria-roledescription={lang === 'es' ? 'carrusel' : 'carousel'}
+        aria-label={t.station.photosOf(title)}
+        data-carousel
+      >
+        <div class="carousel__track" data-carousel-track>
+          {station.photos.map((p, i) => (
+            <div
+              class="carousel__slide"
+              role="group"
+              aria-roledescription={lang === 'es' ? 'foto' : 'slide'}
+              aria-label={t.station.slide(i + 1, n)}
+            >
+              <a class="carousel__photo" {...galleryAttrs(i)}>
+                <Picture
+                  src={photo(p.file)}
+                  alt={p.alt[lang]}
+                  formats={['avif', 'webp']}
+                  fallbackFormat="webp"
+                  quality={QUALITY}
+                  widths={GALLERY_WIDTHS.filter((w) => w <= photo(p.file).width)}
+                  sizes="(min-width: 960px) 52vw, 86vw"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </a>
+            </div>
+          ))}
+        </div>
+        {n > 1 && (
+          <div class="carousel__controls">
+            <button type="button" class="round-btn" data-carousel-prev aria-label={t.station.prev}>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+            </button>
+            <div class="carousel__dots">
+              {station.photos.map((_, i) => (
+                <button type="button" class="dot" data-carousel-dot={i} aria-label={t.station.goTo(i + 1)} aria-current={i === 0 ? 'true' : undefined} />
+              ))}
+            </div>
+            <p class="carousel__count" aria-hidden="true">
+              <span data-carousel-current>1</span> / {n}
+            </p>
+            <button type="button" class="round-btn" data-carousel-next aria-label={t.station.next}>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+            </button>
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
