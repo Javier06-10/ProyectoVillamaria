@@ -8,6 +8,8 @@ export const VILLA = {
   /** Número de WhatsApp en formato internacional (República Dominicana: +1 809). */
   whatsapp: '18094999398',
   phoneDisplay: '+1 (809) 499-9398',
+  /** Correo del propietario para consultas que no sean por WhatsApp. */
+  email: 'agcastillo20@hotmail.com',
   locality: 'Las Lagunas de Nisibón',
   region: 'La Altagracia',
   country: 'DO',

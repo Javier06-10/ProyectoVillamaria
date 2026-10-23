@@ -214,6 +214,12 @@ test.describe('consulta por WhatsApp', () => {
     expect(text).not.toContain('Salida');
   });
 
+  test('muestra el correo del propietario como contacto alternativo', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('#consultar a[href="mailto:agcastillo20@hotmail.com"]')).toHaveText('agcastillo20@hotmail.com');
+    await expect(page.locator('footer a[href="mailto:agcastillo20@hotmail.com"]')).toBeVisible();
+  });
+
   test('las tarifas muestran los precios publicados', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('.rate--pasadia .rate__amount')).toHaveText('RD$10,000');

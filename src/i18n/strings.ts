@@ -49,6 +49,7 @@ export interface Strings {
     direct: string;
     opened: string;
     openLink: string;
+    email: string;
     errorsSummary: string;
     errors: Record<InquiryError, string>;
     defaultText: string;
@@ -126,6 +127,7 @@ const es: Strings = {
     opened:
       '¿No se abrió WhatsApp? Tus datos siguen en el formulario.',
     openLink: 'Abrir WhatsApp con mi consulta',
+    email: 'Correo',
     errorsSummary: 'Revisa los campos marcados.',
     errors: {
       required: 'Este dato es necesario.',
@@ -216,6 +218,7 @@ const en: Strings = {
     direct: 'I’d rather message directly',
     opened: 'WhatsApp didn’t open? Your details are still in the form.',
     openLink: 'Open WhatsApp with my request',
+    email: 'Email',
     errorsSummary: 'Check the highlighted fields.',
     errors: {
       required: 'This is required.',

@@ -987,12 +987,16 @@ a { color: inherit; }
 
 /* ---------- Pie y botón fijo ---------- */
 
+.footer a { color: var(--ink); font-weight: 600; text-underline-offset: 0.2em; overflow-wrap: anywhere; }
+.contact__phone a { overflow-wrap: anywhere; }
 .footer {
   max-width: var(--max);
   margin: 0 auto;
   padding: 2.5rem var(--gutter) 7rem;
   color: var(--ink-2);
   font-size: var(--step--1);
+  display: grid;
+  gap: 0.35rem;
 }
 
 .sticky-cta {

@@ -40,6 +40,7 @@ const jsonLd = {
   description: t.metaDescription,
   image: ogImage,
   telephone: VILLA.phoneDisplay,
+  email: VILLA.email,
   address: {
     '@type': 'PostalAddress',
     addressLocality: VILLA.locality,
@@ -273,6 +274,7 @@ const jsonLd = {
             {t.contact.direct}
           </a>
           <p class="contact__phone">WhatsApp: <a href={`tel:+${VILLA.whatsapp}`}>{VILLA.phoneDisplay}</a></p>
+          <p class="contact__phone">{t.contact.email}: <a href={`mailto:${VILLA.email}`}>{VILLA.email}</a></p>
         </div>
 
         <form
@@ -348,6 +350,10 @@ const jsonLd = {
 
     <footer class="footer">
       <p>{t.footer}</p>
+      <p>
+        WhatsApp <a href={`tel:+${VILLA.whatsapp}`}>{VILLA.phoneDisplay}</a> ·
+        <a href={`mailto:${VILLA.email}`}>{VILLA.email}</a>
+      </p>
     </footer>
 
     <a class="sticky-cta" href="#consultar" data-sticky>
