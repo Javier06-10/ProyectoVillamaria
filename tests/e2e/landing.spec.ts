@@ -7,10 +7,10 @@ test.describe('recorrido', () => {
   test('muestra portada, barra de ambientes y las seis estaciones', async ({ page }, info) => {
     await page.goto('/');
     await expect(page).toHaveTitle(/Villa María/);
-    await expect(page.getByRole('heading', { level: 1, name: 'Villa María' })).toBeVisible();
-    const nav = page.getByRole('navigation', { name: 'Recorrido por la villa' });
-    await expect(nav.getByRole('link')).toHaveCount(info.project.name === 'desktop' ? 8 : 7);
-    for (const name of ['La llegada', 'La casa', 'Adentro', 'La vista', 'La piscina', 'Patio y cabañas']) {
+    await expect(page.getByRole('heading', { level: 1, name: 'Rancho Villa María' })).toBeVisible();
+    const nav = page.getByRole('navigation', { name: 'Recorrido por el rancho' });
+    await expect(nav.getByRole('link')).toHaveCount(info.project.name === 'desktop' ? 9 : 8);
+    for (const name of ['La llegada', 'La casa', 'Habitaciones y cocina', 'La vista', 'La piscina', 'Patio y juegos', 'Tarifas']) {
       await expect(page.getByRole('heading', { level: 2, name })).toBeAttached();
     }
     if (SHOTS) {
@@ -65,11 +65,11 @@ test.describe('galería', () => {
     await thumb.click();
     const dialog = page.locator('dialog[data-gallery-dialog]');
     await expect(dialog).toBeVisible();
-    await expect(dialog.locator('[data-gallery-counter]')).toHaveText('2 de 11');
+    await expect(dialog.locator('[data-gallery-counter]')).toHaveText('2 de 10');
     await expect(page).toHaveURL(/#foto-casa-2$/);
     await expect(dialog.locator('img')).toHaveJSProperty('complete', true);
     await page.keyboard.press('ArrowRight');
-    await expect(dialog.locator('[data-gallery-counter]')).toHaveText('3 de 11');
+    await expect(dialog.locator('[data-gallery-counter]')).toHaveText('3 de 10');
     if (SHOTS) await page.screenshot({ path: `${SHOTS}/${info.project.name}-gallery.png` });
     await page.keyboard.press('Escape');
     await expect(dialog).toBeHidden();
@@ -90,8 +90,8 @@ test.describe('galería', () => {
     await page.goto('/#foto-patio-3');
     const dialog = page.locator('dialog[data-gallery-dialog]');
     await expect(dialog).toBeVisible();
-    await expect(dialog.locator('[data-gallery-counter]')).toHaveText('3 de 11');
-    await expect(dialog.locator('img')).toHaveAttribute('alt', 'Columpios en el patio entre árboles');
+    await expect(dialog.locator('[data-gallery-counter]')).toHaveText('3 de 9');
+    await expect(dialog.locator('img')).toHaveAttribute('alt', 'Jardín con palmas y césped');
   });
 });
 
@@ -178,11 +178,47 @@ test.describe('consulta por WhatsApp', () => {
     await page.getByRole('button', { name: 'Abrir WhatsApp con mi consulta' }).click();
     await expect.poll(() => opened).toContain('https://wa.me/18094999398?text=');
     const text = new URL(opened).searchParams.get('text') ?? '';
-    expect(text).toContain('Hola, soy Ana Pérez. Me interesa alquilar Villa María.');
+    expect(text).toContain('Hola, soy Ana Pérez. Me interesa una estadía en Rancho Villa María.');
     expect(text).toContain('Salida: 13 mar 2027 (3 noches)');
     expect(text).toContain('Personas: 5');
     await page.goBack();
     await expect(page.getByLabel('Tu nombre')).toHaveValue('Ana Pérez');
+  });
+
+  test('el pasadía usa una sola fecha, admite 45 personas y se elige desde la tarifa', async ({ page }) => {
+    let opened = '';
+    await page.route('https://wa.me/**', async (route) => {
+      opened = route.request().url();
+      await route.fulfill({ status: 204 });
+    });
+    await page.goto('/');
+    await page.locator('a[data-book="pasadia"]').click();
+    await expect(page.getByRole('radio', { name: 'Pasadía' })).toBeChecked();
+    await expect(page.getByLabel('Salida', { exact: true })).toBeHidden();
+    await expect(page.locator('label[for="f-in"]')).toHaveText('Fecha');
+    await expect(page.locator('#f-guests-hint')).toHaveText('Hasta 45 personas');
+    await page.getByLabel('Tu nombre').fill('Luis');
+    await page.getByLabel('Fecha', { exact: true }).fill('2027-04-03');
+    await page.getByLabel('Personas').fill('46');
+    await page.getByRole('button', { name: 'Abrir WhatsApp con mi consulta' }).click();
+    await expect(page.locator('#f-guests-error')).toHaveText('El pasadía es para un máximo de 45 personas.');
+    await page.getByLabel('Personas').fill('40');
+    await page.getByLabel('Me interesan las casas de campaña').check();
+    await page.getByRole('button', { name: 'Abrir WhatsApp con mi consulta' }).click();
+    await expect.poll(() => opened).toContain('wa.me/18094999398?text=');
+    const text = new URL(opened).searchParams.get('text') ?? '';
+    expect(text).toContain('Me interesa un pasadía en Rancho Villa María.');
+    expect(text).toContain('Fecha: 3 abr 2027');
+    expect(text).toContain('Personas: 40');
+    expect(text).toContain('También me interesan las casas de campaña.');
+    expect(text).not.toContain('Salida');
+  });
+
+  test('las tarifas muestran los precios publicados', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.rate--pasadia .rate__amount')).toHaveText('RD$10,000');
+    await expect(page.locator('.rate--estadia .rate__amount')).toHaveText('RD$16,000');
+    await expect(page.locator('.rate--estadia')).toContainText('Alojamiento para hasta 16 personas');
   });
 
   test('si la redirección falla, queda un enlace directo con el mensaje', async ({ page }) => {
@@ -204,7 +240,7 @@ test.describe('idiomas y accesibilidad', () => {
   test('la versión en inglés usa sus propios textos y mensaje', async ({ page }) => {
     await page.goto('/en/');
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-    await expect(page.getByRole('heading', { level: 2, name: 'Yard and cabins' })).toBeAttached();
+    await expect(page.getByRole('heading', { level: 2, name: 'Yard and play' })).toBeAttached();
     await page.getByRole('link', { name: 'Español' }).click();
     await expect(page).toHaveURL(/\/$/);
     await expect(page.locator('html')).toHaveAttribute('lang', 'es-DO');

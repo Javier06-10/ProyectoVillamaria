@@ -18,7 +18,7 @@ export interface Strings {
     slide: (i: number, n: number) => string;
     goTo: (i: number) => string;
   };
-  essentials: { title: string; priceTitle: string; priceText: string; rulesNote: string };
+  essentials: { title: string; ratesTitle: string; ratesLead: string; tentsNote: string; rulesNote: string; book: string; currency: string };
   location: {
     title: string;
     text: string;
@@ -34,9 +34,14 @@ export interface Strings {
     title: string;
     text: string;
     name: string;
+    kind: string;
+    kinds: { pasadia: string; estadia: string };
+    date: string;
     checkIn: string;
     checkOut: string;
     guests: string;
+    guestsHint: { pasadia: string; estadia: string };
+    tents: string;
     message: string;
     optional: string;
     submit: string;
@@ -58,16 +63,16 @@ export interface Strings {
 const es: Strings = {
   htmlLang: 'es-DO',
   locale: 'es_DO',
-  metaTitle: 'Villa María — Casa con piscina en Las Lagunas de Nisibón',
+  metaTitle: 'Rancho Villa María — Pasadías y estadías en Las Lagunas de Nisibón',
   metaDescription:
-    'Alquiler de Villa María en Las Lagunas de Nisibón, La Altagracia: 2 habitaciones con aire, 2 cabañas con baño, piscina, luz 24 horas y parqueo. Consulta fechas por WhatsApp.',
+    'Rancho Villa María en Las Lagunas de Nisibón, La Altagracia: 7 habitaciones, piscina amplia, billar, dominó, BBQ y áreas verdes. Pasadía desde RD$10,000 y estadía RD$16,000 por noche. Reserva por WhatsApp.',
   skip: 'Saltar al contenido',
-  tourLabel: 'Recorrido por la villa',
+  tourLabel: 'Recorrido por el rancho',
   langSwitch: { label: 'English', href: 'en/', hreflang: 'en' },
   hero: {
-    kicker: 'Casa de campo con piscina en Las Lagunas de Nisibón',
-    lead: 'Dos habitaciones en la planta alta, dos cabañas con baño y luz las 24 horas. Recórrela antes de llegar.',
-    cta: 'Consultar fechas por WhatsApp',
+    kicker: 'Naturaleza, comodidad y diversión en Las Lagunas de Nisibón',
+    lead: '7 habitaciones, piscina amplia, billar, dominó, BBQ y áreas verdes. Para pasar el día en familia, quedarte el fin de semana o celebrar una ocasión especial.',
+    cta: 'Reservar por WhatsApp',
     secondary: 'Empezar el recorrido',
     pause: 'Pausar fotos',
     play: 'Reanudar fotos',
@@ -83,10 +88,12 @@ const es: Strings = {
   },
   essentials: {
     title: 'Lo que incluye',
-    priceTitle: 'Precio',
-    priceText:
-      'El precio depende de las fechas y del número de personas. Escríbenos por WhatsApp y te lo enviamos.',
+    ratesTitle: 'Tarifas',
+    ratesLead: 'Precios por grupo completo, no por persona.',
+    tentsNote: 'Las casas de campaña tienen un costo adicional; pregúntalo al reservar.',
     rulesNote: 'Te compartimos las normas de la casa al confirmar la reserva.',
+    book: 'Reservar',
+    currency: 'RD$',
   },
   location: {
     title: 'Dónde está',
@@ -100,12 +107,17 @@ const es: Strings = {
     privacy: 'La dirección exacta se comparte al confirmar la reserva.',
   },
   contact: {
-    title: 'Consulta tus fechas',
-    text: 'Completa estos datos y se abrirá WhatsApp con el mensaje listo para enviar. Te respondemos con disponibilidad y precio.',
+    title: 'Reserva tu fecha',
+    text: 'Elige pasadía o estadía, completa los datos y se abrirá WhatsApp con el mensaje listo para enviar. Te confirmamos la disponibilidad.',
     name: 'Tu nombre',
+    kind: 'Tipo de visita',
+    kinds: { pasadia: 'Pasadía', estadia: 'Estadía' },
+    date: 'Fecha',
     checkIn: 'Llegada',
     checkOut: 'Salida',
     guests: 'Personas',
+    guestsHint: { pasadia: 'Hasta 45 personas', estadia: 'Hasta 16 personas' },
+    tents: 'Me interesan las casas de campaña',
     message: 'Algo más que debamos saber',
     optional: 'opcional',
     submit: 'Abrir WhatsApp con mi consulta',
@@ -118,21 +130,23 @@ const es: Strings = {
     errors: {
       required: 'Este dato es necesario.',
       invalidDate: 'Escribe una fecha válida.',
-      pastDate: 'La llegada no puede ser antes de hoy.',
+      pastDate: 'La fecha no puede ser antes de hoy.',
       checkOutBeforeCheckIn: 'La salida debe ser después de la llegada.',
       tooLong: 'Es demasiado largo; resúmelo un poco.',
-      invalidGuests: 'Escribe un número entre 1 y 30.',
+      invalidGuests: 'Escribe un número entero de personas.',
+      guestsOverDay: 'El pasadía es para un máximo de 45 personas.',
+      guestsOverNight: 'La estadía es para un máximo de 16 personas.',
     },
-    defaultText: 'Hola, me interesa alquilar Villa María. ¿Qué fechas tienen disponibles y cuál es el precio?',
+    defaultText: 'Hola, me interesa reservar en Rancho Villa María. ¿Qué fechas tienen disponibles?',
   },
-  sticky: 'Consultar fechas',
+  sticky: 'Reservar fecha',
   gallery: {
     close: 'Cerrar',
     prev: 'Foto anterior',
     next: 'Foto siguiente',
     counter: (i, n) => `${i} de ${n}`,
   },
-  footer: 'Villa María, Las Lagunas de Nisibón, La Altagracia, República Dominicana.',
+  footer: 'Rancho Villa María, Las Lagunas de Nisibón, La Altagracia, República Dominicana.',
   km: 'km',
   min: (m) => (m >= 60 ? `${Math.floor(m / 60)} h ${m % 60 ? `${m % 60} min` : ''}`.trim() : `${m} min`),
 };
@@ -140,16 +154,16 @@ const es: Strings = {
 const en: Strings = {
   htmlLang: 'en',
   locale: 'en_US',
-  metaTitle: 'Villa María — Country house with pool in Las Lagunas de Nisibón',
+  metaTitle: 'Rancho Villa María — Day passes and stays in Las Lagunas de Nisibón',
   metaDescription:
-    'Rent Villa María in Las Lagunas de Nisibón, Dominican Republic: 2 air-conditioned bedrooms, 2 cabins with bathrooms, pool, 24-hour power and parking. Ask for dates on WhatsApp.',
+    'Rancho Villa María in Las Lagunas de Nisibón, Dominican Republic: 7 rooms, a large pool, pool table, dominoes, BBQ and green areas. Day pass from RD$10,000 and stays at RD$16,000 per night. Book on WhatsApp.',
   skip: 'Skip to content',
-  tourLabel: 'Villa tour',
+  tourLabel: 'Ranch tour',
   langSwitch: { label: 'Español', href: '../', hreflang: 'es' },
   hero: {
-    kicker: 'Country house with a pool in Las Lagunas de Nisibón',
-    lead: 'Two bedrooms upstairs, two cabins with bathrooms and power around the clock. Take the tour before you arrive.',
-    cta: 'Ask for dates on WhatsApp',
+    kicker: 'Nature, comfort and fun in Las Lagunas de Nisibón',
+    lead: '7 rooms, a large pool, pool table, dominoes, BBQ and green areas. Spend the day with family, stay the weekend or celebrate a special occasion.',
+    cta: 'Book on WhatsApp',
     secondary: 'Start the tour',
     pause: 'Pause photos',
     play: 'Play photos',
@@ -165,10 +179,12 @@ const en: Strings = {
   },
   essentials: {
     title: 'What’s included',
-    priceTitle: 'Price',
-    priceText:
-      'The price depends on your dates and group size. Message us on WhatsApp and we’ll send it to you.',
+    ratesTitle: 'Rates',
+    ratesLead: 'Prices are for the whole group, not per person.',
+    tentsNote: 'The tents cost extra; ask when you book.',
     rulesNote: 'We share the house rules when your booking is confirmed.',
+    book: 'Book',
+    currency: 'RD$',
   },
   location: {
     title: 'Where it is',
@@ -182,12 +198,17 @@ const en: Strings = {
     privacy: 'The exact address is shared once your booking is confirmed.',
   },
   contact: {
-    title: 'Ask about your dates',
-    text: 'Fill this in and WhatsApp opens with your message ready to send. We reply with availability and price.',
+    title: 'Book your date',
+    text: 'Choose a day pass or an overnight stay, fill in your details and WhatsApp opens with your message ready to send. We’ll confirm availability.',
     name: 'Your name',
+    kind: 'Type of visit',
+    kinds: { pasadia: 'Day pass', estadia: 'Overnight stay' },
+    date: 'Date',
     checkIn: 'Check-in',
     checkOut: 'Check-out',
     guests: 'Guests',
+    guestsHint: { pasadia: 'Up to 45 people', estadia: 'Up to 16 people' },
+    tents: 'I’m interested in the tents',
     message: 'Anything else we should know',
     optional: 'optional',
     submit: 'Open WhatsApp with my request',
@@ -199,21 +220,23 @@ const en: Strings = {
     errors: {
       required: 'This is required.',
       invalidDate: 'Enter a valid date.',
-      pastDate: 'Check-in can’t be before today.',
+      pastDate: 'The date can’t be before today.',
       checkOutBeforeCheckIn: 'Check-out must be after check-in.',
       tooLong: 'That’s too long; please shorten it.',
-      invalidGuests: 'Enter a number from 1 to 30.',
+      invalidGuests: 'Enter a whole number of guests.',
+      guestsOverDay: 'The day pass is for up to 45 people.',
+      guestsOverNight: 'The overnight stay is for up to 16 people.',
     },
-    defaultText: 'Hi, I’m interested in renting Villa María. Which dates are available and what is the price?',
+    defaultText: 'Hi, I’d like to book at Rancho Villa María. Which dates are available?',
   },
-  sticky: 'Ask for dates',
+  sticky: 'Book a date',
   gallery: {
     close: 'Close',
     prev: 'Previous photo',
     next: 'Next photo',
     counter: (i, n) => `${i} of ${n}`,
   },
-  footer: 'Villa María, Las Lagunas de Nisibón, La Altagracia, Dominican Republic.',
+  footer: 'Rancho Villa María, Las Lagunas de Nisibón, La Altagracia, Dominican Republic.',
   km: 'km',
   min: (m) => (m >= 60 ? `${Math.floor(m / 60)} h ${m % 60 ? `${m % 60} min` : ''}`.trim() : `${m} min`),
 };
