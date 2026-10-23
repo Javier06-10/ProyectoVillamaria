@@ -5,6 +5,7 @@ export interface Strings {
   locale: string;
   metaTitle: string;
   metaDescription: string;
+  ogAlt: string;
   skip: string;
   tourLabel: string;
   langSwitch: { label: string; href: string; hreflang: Lang };
@@ -67,6 +68,7 @@ const es: Strings = {
   metaTitle: 'Rancho Villa María — Pasadías y estadías en Las Lagunas de Nisibón',
   metaDescription:
     'Rancho Villa María en Las Lagunas de Nisibón, La Altagracia: 7 habitaciones, piscina amplia, billar, dominó, BBQ y áreas verdes. Pasadía desde RD$10,000 y estadía RD$16,000 por noche. Reserva por WhatsApp.',
+  ogAlt: 'Rancho Villa María: piscina con sombrillas, tarifas de pasadía y estadía',
   skip: 'Saltar al contenido',
   tourLabel: 'Recorrido por el rancho',
   langSwitch: { label: 'English', href: 'en/', hreflang: 'en' },
@@ -159,6 +161,7 @@ const en: Strings = {
   metaTitle: 'Rancho Villa María — Day passes and stays in Las Lagunas de Nisibón',
   metaDescription:
     'Rancho Villa María in Las Lagunas de Nisibón, Dominican Republic: 7 rooms, a large pool, pool table, dominoes, BBQ and green areas. Day pass from RD$10,000 and stays at RD$16,000 per night. Book on WhatsApp.',
+  ogAlt: 'Rancho Villa María: pool with umbrellas, day pass and overnight rates',
   skip: 'Skip to content',
   tourLabel: 'Ranch tour',
   langSwitch: { label: 'Español', href: '../', hreflang: 'es' },
