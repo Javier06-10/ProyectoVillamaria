@@ -1,12 +1,12 @@
-# Villa María: landing de alquiler
+# Rancho Villa María: landing de alquiler
 
-Sitio estático de una página, en español (`/`) e inglés (`/en/`), que recorre la villa por ambientes y termina en una consulta por WhatsApp.
+Sitio estático de una página, en español (`/`) e inglés (`/en/`), que recorre el rancho por ambientes, muestra las tarifas (pasadía y estadía) y termina en una reserva por WhatsApp.
 
 ## Stack
 
 - **Astro 5** (salida estática, sin framework de UI). TypeScript estricto.
 - Imágenes optimizadas en el build con `astro:assets` + sharp: AVIF y WebP en varios anchos, sin metadatos EXIF.
-- JavaScript propio solo para la galería, la barra de ambientes y el formulario (unos 5,5 KB gzip). Sin JS, todo el contenido y los enlaces siguen funcionando.
+- JavaScript propio para la galería, los carruseles, las animaciones, la barra de ambientes y el formulario (unos 8 KB gzip). Sin JS, todo el contenido y los enlaces siguen funcionando.
 - Fuente: Bricolage Grotesque (licencia SIL OFL), recortada a los caracteres de español e inglés y alojada en `public/fonts` (25 KB).
 
 ## Comandos
@@ -29,7 +29,10 @@ Para Playwright, la primera vez: `npx playwright install chromium`.
 | --- | --- |
 | Número de WhatsApp, nombre, zona, enlace a Google Maps | `src/data/villa.ts` → `VILLA` |
 | Ambientes del recorrido, sus textos y el orden de las fotos | `src/data/villa.ts` → `STATIONS` |
-| Lo que incluye la casa | `src/data/villa.ts` → `AMENITIES` |
+| Lo que incluye el rancho | `src/data/villa.ts` → `AMENITIES` |
+| Tarifas (pasadía, estadía) | `src/data/villa.ts` → `RATES` |
+| Máximo de personas por tipo de visita | `src/lib/inquiry.ts` → `LIMITS.guestsMax` |
+| Fotos del pase de la portada | `src/data/villa.ts` → `HERO_SLIDES` (usar fotos horizontales) |
 | Distancias a playas, pueblos y aeropuerto | `src/data/villa.ts` → `PLACES` |
 | Textos de la interfaz en los dos idiomas | `src/i18n/strings.ts` |
 | Fotos | `src/assets/fotos/<ambiente>/` (la primera de cada ambiente es la principal) |
@@ -50,11 +53,13 @@ Pensado para **Cloudflare Pages** o **Netlify** (plan gratuito):
 
 - **Sitio estático sin backend.** No hay datos personales almacenados ni servidor que mantener; la consulta se arma en el navegador y se envía por WhatsApp.
 - **La dirección exacta no se publica.** Las fotos se publican sin EXIF (algunas cámaras guardan el GPS) y el mapa apunta solo al pueblo.
-- **Precio a consultar.** El mensaje de WhatsApp ya pide disponibilidad y precio para las fechas elegidas.
+- **Tarifas publicadas.** El formulario distingue pasadía (una fecha, hasta 45 personas) y estadía (llegada y salida, hasta 16 personas); el mensaje de WhatsApp sale armado según el tipo.
+- **Animación con respeto.** Todo el movimiento es CSS y JS propios, se apaga con "reducir movimiento" del sistema y el pase de fotos tiene botón de pausa.
 
 ## Pendiente antes de lanzar
 
 - Confirmar las distancias de `PLACES` (son estimaciones).
-- Normas de la casa, capacidad máxima y horario de entrada y salida.
-- Fotos de la sala, el baño, la segunda habitación y el interior de las cabañas.
+- Normas de la casa y hora de entrada de la estadía.
+- Confirmar el número de habitaciones (la descripción dice 6 y luego 7).
+- Fotos de las habitaciones familiares, la sala, los baños, el billar, el dominó, el área de BBQ y las casas de campaña.
 - Comprar el dominio y definir `SITE_URL`.

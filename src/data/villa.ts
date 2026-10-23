@@ -1,8 +1,10 @@
-import type { Lang } from '../lib/inquiry';
+import type { Lang, VisitKind } from '../lib/inquiry';
 
 /** Datos de contacto y ubicación. Única fuente de verdad. */
 export const VILLA = {
-  name: 'Villa María',
+  name: 'Rancho Villa María',
+  /** Parte destacada del nombre en la portada. */
+  shortName: 'Villa María',
   /** Número de WhatsApp en formato internacional (República Dominicana: +1 809). */
   whatsapp: '18094999398',
   phoneDisplay: '+1 (809) 499-9398',
@@ -38,19 +40,18 @@ export const STATIONS: Station[] = [
     nav: { es: 'Llegada', en: 'Arrival' },
     title: { es: 'La llegada', en: 'Arriving' },
     text: {
-      es: 'Un camino de campo, un portón con su nombre y parqueo techado dentro de la propiedad.',
-      en: 'A country road, a gate with its name on it, and covered parking inside the property.',
+      es: 'Un camino de campo, un portón con su nombre y parqueo privado dentro del rancho.',
+      en: 'A country road, a gate with its name on it, and private parking inside the ranch.',
     },
     facts: {
-      es: ['Parqueo techado', 'Propiedad con portón', 'Cerca del centro del pueblo'],
-      en: ['Covered parking', 'Gated property', 'Close to the town centre'],
+      es: ['Parqueo privado', 'Propiedad con portón', 'Cerca del centro del pueblo'],
+      en: ['Private parking', 'Gated property', 'Close to the town centre'],
     },
     photos: [
       { file: 'llegada/llegada-01.jpg', alt: { es: 'Portón negro con el nombre Villa María y la casa al fondo', en: 'Black gate with the Villa María name and the house behind it' } },
       { file: 'llegada/llegada-02.jpg', alt: { es: 'Portón de metal con letras blancas de Villa María rodeado de vegetación', en: 'Metal gate with white Villa María letters surrounded by greenery' } },
       { file: 'llegada/llegada-03.jpg', alt: { es: 'Camino de tierra que sube hasta el portón', en: 'Dirt road leading up to the gate' } },
       { file: 'llegada/llegada-04.jpg', alt: { es: 'Flores de cayena rojas junto a la entrada', en: 'Red hibiscus flowers by the entrance' } },
-      { file: 'llegada/llegada-05.jpg', alt: { es: 'Camino rural entre árboles cerca de la villa', en: 'Tree-lined country road near the villa' } },
       { file: 'llegada/llegada-06.jpg', alt: { es: 'Marquesina techada con un vehículo estacionado', en: 'Covered carport with a vehicle parked' } },
     ],
   },
@@ -59,12 +60,12 @@ export const STATIONS: Station[] = [
     nav: { es: 'La casa', en: 'The house' },
     title: { es: 'La casa', en: 'The house' },
     text: {
-      es: 'Dos niveles con columnas verde lima, galería y escalera exterior. La planta alta es un apartamento independiente para los huéspedes.',
-      en: 'Two floors with lime-green columns, a porch and an outdoor staircase. The upper floor is a self-contained apartment for guests.',
+      es: 'Dos niveles con columnas verde lima, galería y escalera exterior. Espacio tranquilo y acogedor para compartir con familia y amigos.',
+      en: 'Two floors with lime-green columns, a porch and an outdoor staircase. A quiet, welcoming place to share with family and friends.',
     },
     facts: {
-      es: ['Planta alta independiente', 'Balcón y galería', 'Luz las 24 horas'],
-      en: ['Self-contained upper floor', 'Balcony and porch', 'Power 24 hours a day'],
+      es: ['Balcón y galería', 'Luz las 24 horas', 'Hasta 16 personas de noche'],
+      en: ['Balcony and porch', 'Power 24 hours a day', 'Sleeps up to 16'],
     },
     photos: [
       { file: 'casa/casa-01.jpg', alt: { es: 'Fachada de dos niveles con columnas verde lima junto a un flamboyán', en: 'Two-story facade with lime-green columns beside a flame tree' } },
@@ -77,26 +78,24 @@ export const STATIONS: Station[] = [
       { file: 'casa/casa-08.jpg', alt: { es: 'Escalera exterior blanca hacia la planta alta', en: 'White outdoor staircase to the upper floor' } },
       { file: 'casa/casa-09.jpg', alt: { es: 'Planta alta y escaleras bajo un cielo azul', en: 'Upper floor and stairs under a blue sky' } },
       { file: 'casa/casa-10.jpg', alt: { es: 'Escalera exterior y puertas en la parte trasera', en: 'Outdoor staircase and doors at the back' } },
-      { file: 'casa/casa-11.jpg', alt: { es: 'Detalle de la baranda blanca con rombos', en: 'Detail of the white diamond-pattern railing' } },
     ],
   },
   {
     id: 'adentro',
-    nav: { es: 'Adentro', en: 'Inside' },
-    title: { es: 'Adentro', en: 'Inside' },
+    nav: { es: 'Habitaciones', en: 'Rooms' },
+    title: { es: 'Habitaciones y cocina', en: 'Rooms and kitchen' },
     text: {
-      es: 'Dos habitaciones con aire acondicionado, sala, cocina y baño.',
-      en: 'Two air-conditioned bedrooms, a living room, a kitchen and a bathroom.',
+      es: '7 habitaciones con aire acondicionado: 5 para parejas y 2 familiares. Cocina equipada para cocinar en grupo.',
+      en: '7 air-conditioned rooms: 5 for couples and 2 for families. A fully equipped kitchen for cooking together.',
     },
     facts: {
-      es: ['2 habitaciones', 'Aire en cada habitación', 'Cocina con estufa'],
-      en: ['2 bedrooms', 'Air conditioning in every room', 'Kitchen with stove'],
+      es: ['5 habitaciones para parejas', '2 habitaciones familiares', 'Cocina equipada'],
+      en: ['5 rooms for couples', '2 family rooms', 'Equipped kitchen'],
     },
     photos: [
       { file: 'adentro/adentro-01.jpg', alt: { es: 'Habitación con cama y ropa de cama verde', en: 'Bedroom with a bed made up in green linen' } },
       { file: 'adentro/adentro-02.jpg', alt: { es: 'Habitación con aire acondicionado sobre la cama', en: 'Bedroom with an air conditioner above the bed' } },
       { file: 'adentro/adentro-03.jpg', alt: { es: 'Cocina con gabinetes blancos, fregadero y estufa', en: 'Kitchen with white cabinets, sink and stove' } },
-      { file: 'adentro/adentro-04.jpg', alt: { es: 'Detalle decorativo dentro de la casa', en: 'Decorative detail inside the house' } },
     ],
   },
   {
@@ -123,43 +122,42 @@ export const STATIONS: Station[] = [
     nav: { es: 'Piscina', en: 'Pool' },
     title: { es: 'La piscina', en: 'The pool' },
     text: {
-      es: 'Piscina con sillas y sombrillas, y un baño propio en el área para no entrar mojado a la casa.',
-      en: 'A pool with chairs and umbrellas, and its own bathroom so nobody has to walk into the house wet.',
+      es: 'Piscina amplia con borde de piedra, sombrillas y un baño propio en el área para no entrar mojado a la casa.',
+      en: 'A large pool with a stone deck, umbrellas and its own bathroom so nobody has to walk into the house wet.',
     },
     facts: {
-      es: ['Baño en el área de piscina', 'Sombrillas y sillas'],
-      en: ['Poolside bathroom', 'Umbrellas and chairs'],
+      es: ['Piscina amplia', 'Baño en el área de piscina', 'Sombrillas y sillas'],
+      en: ['Large pool', 'Poolside bathroom', 'Umbrellas and chairs'],
     },
     photos: [
-      { file: 'piscina/piscina-01.jpg', alt: { es: 'Piscina con sillas rojas y sombrillas de colores', en: 'Pool with red chairs and colourful umbrellas' } },
-      { file: 'piscina/piscina-02.jpg', alt: { es: 'Piscina vista desde arriba con borde de piedra', en: 'Pool seen from above with a stone edge' } },
-      { file: 'piscina/piscina-03.jpg', alt: { es: 'Piscina rodeada de jardín y sombrillas', en: 'Pool surrounded by garden and umbrellas' } },
+      { file: 'piscina/piscina-nueva-01.jpg', alt: { es: 'Piscina azul con el nombre Villamaria en el fondo, vista desde la terraza', en: 'Blue pool with the Villamaria name on the floor, seen from the terrace' } },
+      { file: 'piscina/piscina-nueva-03.jpg', alt: { es: 'Piscina con sombrillas de colores y la galería al fondo', en: 'Pool with colourful umbrellas and the porch behind it' } },
+      { file: 'piscina/piscina-nueva-02.jpg', alt: { es: 'Piscina iluminada con la casa del rancho al fondo', en: 'Lit pool with the ranch house behind it' } },
+      { file: 'piscina/piscina-01.jpg', alt: { es: 'Sillas rojas y sombrillas junto a la piscina', en: 'Red chairs and umbrellas by the pool' } },
     ],
   },
   {
     id: 'patio',
-    nav: { es: 'Patio y cabañas', en: 'Yard and cabins' },
-    title: { es: 'Patio y cabañas', en: 'Yard and cabins' },
+    nav: { es: 'Patio y juegos', en: 'Yard and play' },
+    title: { es: 'Patio y juegos', en: 'Yard and play' },
     text: {
-      es: 'Dos cabañas con baño propio, columpios y un patio con palmas de coco y matas de mango.',
-      en: 'Two cabins with their own bathrooms, swings, and a yard with coconut palms and mango trees.',
+      es: 'Áreas verdes con columpios y casita de juegos para los niños, palmas de coco y matas de mango. Hay 2 casas de campaña para quien quiera dormir en contacto con la naturaleza.',
+      en: 'Green areas with swings and a playhouse for the kids, coconut palms and mango trees. Two tents are available for anyone who wants to sleep closer to nature.',
     },
     facts: {
-      es: ['2 cabañas con baño', 'Columpios', 'Cocos y mangos'],
-      en: ['2 cabins with bathroom', 'Swings', 'Coconuts and mangoes'],
+      es: ['Columpios y casita de juegos', 'Áreas verdes', 'Casas de campaña opcionales'],
+      en: ['Swings and playhouse', 'Green areas', 'Optional tents'],
     },
     photos: [
-      { file: 'patio/patio-01.jpg', alt: { es: 'Cabaña de madera roja entre plantas', en: 'Red wooden cabin among plants' } },
-      { file: 'patio/patio-02.jpg', alt: { es: 'Camino de grava bajo un flamboyán en el patio', en: 'Gravel path under a flame tree in the yard' } },
+      { file: 'patio/casita-juegos.jpg', alt: { es: 'Casita de juegos de madera roja y blanca entre palmas', en: 'Red and white wooden playhouse among palms' } },
       { file: 'patio/patio-03.jpg', alt: { es: 'Columpios en el patio entre árboles', en: 'Swings in the yard among trees' } },
       { file: 'patio/patio-04.jpg', alt: { es: 'Jardín con palmas y césped', en: 'Garden with palms and lawn' } },
+      { file: 'patio/patio-02.jpg', alt: { es: 'Camino de grava bajo un flamboyán en el patio', en: 'Gravel path under a flame tree in the yard' } },
+      { file: 'patio/banco-gomas.jpg', alt: { es: 'Banco hecho con gomas pintadas de azul, blanco y rojo', en: 'Bench made from tyres painted blue, white and red' } },
       { file: 'patio/patio-05.jpg', alt: { es: 'Palma de coco en el patio', en: 'Coconut palm in the yard' } },
       { file: 'patio/patio-06.jpg', alt: { es: 'Racimo de cocos verdes', en: 'Bunch of green coconuts' } },
       { file: 'patio/patio-07.jpg', alt: { es: 'Mangos colgando de una mata del patio', en: 'Mangoes hanging from a tree in the yard' } },
-      { file: 'patio/patio-08.jpg', alt: { es: 'Cocos en la palma', en: 'Coconuts on the palm' } },
-      { file: 'patio/patio-09.jpg', alt: { es: 'Plantas tropicales del jardín', en: 'Tropical plants in the garden' } },
       { file: 'patio/patio-10.jpg', alt: { es: 'Gallinas sueltas en el patio', en: 'Free-roaming chickens in the yard' } },
-      { file: 'patio/patio-11.jpg', alt: { es: 'Camino entre árboles bajo un cielo azul', en: 'Path among trees under a blue sky' } },
     ],
   },
 ];
@@ -167,7 +165,7 @@ export const STATIONS: Station[] = [
 /** Imagen para compartir en redes: la vista panorámica. */
 export const HERO_PHOTO = 'vista/vista-02.jpg';
 
-export type AmenityIcon = 'home' | 'cabin' | 'snow' | 'bolt' | 'pool' | 'car';
+export type AmenityIcon = 'bed' | 'pool' | 'billiards' | 'domino' | 'fire' | 'kitchen' | 'tree' | 'swing' | 'snow' | 'bolt' | 'car' | 'tent';
 
 export interface Amenity {
   icon: AmenityIcon;
@@ -175,16 +173,55 @@ export interface Amenity {
 }
 
 export const AMENITIES: Amenity[] = [
-  { icon: 'home', text: { es: 'Apartamento en planta alta: 2 habitaciones, sala, cocina y baño', en: 'Upper-floor apartment: 2 bedrooms, living room, kitchen and bathroom' } },
-  { icon: 'cabin', text: { es: '2 cabañas en el patio, cada una con su baño', en: '2 cabins in the yard, each with its own bathroom' } },
-  { icon: 'snow', text: { es: 'Aire acondicionado en todas las habitaciones', en: 'Air conditioning in every bedroom' } },
+  { icon: 'bed', text: { es: '7 habitaciones: 5 para parejas y 2 familiares', en: '7 rooms: 5 for couples and 2 for families' } },
+  { icon: 'pool', text: { es: 'Piscina amplia con baño propio', en: 'Large pool with its own bathroom' } },
+  { icon: 'billiards', text: { es: 'Mesa de billar', en: 'Pool table' } },
+  { icon: 'domino', text: { es: 'Mesa de dominó', en: 'Dominoes table' } },
+  { icon: 'fire', text: { es: 'Área de BBQ y asadero', en: 'BBQ and grill area' } },
+  { icon: 'kitchen', text: { es: 'Cocina equipada', en: 'Equipped kitchen' } },
+  { icon: 'tree', text: { es: 'Áreas verdes', en: 'Green areas' } },
+  { icon: 'swing', text: { es: 'Columpios y casita de juegos para niños', en: 'Swings and a playhouse for kids' } },
+  { icon: 'snow', text: { es: 'Aire acondicionado en las habitaciones', en: 'Air conditioning in the rooms' } },
   { icon: 'bolt', text: { es: 'Luz las 24 horas', en: 'Power 24 hours a day' } },
-  { icon: 'pool', text: { es: 'Piscina con baño propio', en: 'Pool with its own bathroom' } },
-  { icon: 'car', text: { es: 'Parqueo techado dentro de la propiedad', en: 'Covered parking inside the property' } },
+  { icon: 'car', text: { es: 'Parqueo privado', en: 'Private parking' } },
+  { icon: 'tent', text: { es: '2 casas de campaña (costo adicional)', en: '2 tents (extra charge)' } },
 ];
 
-/** Fotos del pase de la portada, en orden. La primera se carga con prioridad. */
-export const HERO_SLIDES = ['vista-02', 'piscina-01', 'casa-01', 'llegada-01', 'piscina-02'].map((n) => `${n.split('-')[0]}/${n}.jpg`);
+/** Fotos del pase de la portada (horizontales), en orden. La primera se carga con prioridad. */
+export const HERO_SLIDES = ['vista/vista-02.jpg', 'piscina/piscina-01.jpg', 'casa/casa-01.jpg', 'llegada/llegada-01.jpg', 'vista/vista-01.jpg'];
+
+/** Tarifas publicadas por el rancho (RD$). */
+
+export interface Rate {
+  kind: VisitKind;
+  name: Localized;
+  price: number;
+  unit: Localized;
+  details: Record<Lang, string[]>;
+}
+
+export const RATES: Rate[] = [
+  {
+    kind: 'pasadia',
+    name: { es: 'Pasadía', en: 'Day pass' },
+    price: 10000,
+    unit: { es: 'por grupo', en: 'per group' },
+    details: {
+      es: ['Grupos de 30 a 45 personas', 'De 9:30 a. m. a 6:00 p. m.', 'Piscina, billar, dominó y BBQ'],
+      en: ['Groups of 30 to 45 people', '9:30 a.m. to 6:00 p.m.', 'Pool, pool table, dominoes and BBQ'],
+    },
+  },
+  {
+    kind: 'estadia',
+    name: { es: 'Estadía', en: 'Overnight stay' },
+    price: 16000,
+    unit: { es: 'por noche', en: 'per night' },
+    details: {
+      es: ['Alojamiento para hasta 16 personas', '7 habitaciones con aire acondicionado', 'Salida a las 6:00 p. m. del día siguiente'],
+      en: ['Sleeps up to 16 people', '7 air-conditioned rooms', 'Check-out at 6:00 p.m. the next day'],
+    },
+  },
+];
 
 /**
  * Distancias APROXIMADAS por carretera desde Las Lagunas de Nisibón.

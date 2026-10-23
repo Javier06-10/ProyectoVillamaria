@@ -5,23 +5,30 @@
 
 export type Lang = 'es' | 'en';
 
+/** Pasadía (un día, 9:30 a. m. a 6:00 p. m.) o estadía (con noches). */
+export type VisitKind = 'pasadia' | 'estadia';
+
 export interface InquiryInput {
+  kind: string;
   name: string;
-  checkIn: string; // YYYY-MM-DD
-  checkOut: string; // YYYY-MM-DD
+  checkIn: string; // YYYY-MM-DD (en pasadía es la fecha del día)
+  checkOut: string; // YYYY-MM-DD (solo estadía)
   guests: string;
+  tents: boolean;
   message: string;
 }
 
 export interface Inquiry {
+  kind: VisitKind;
   name: string;
   checkIn: string;
   checkOut: string;
   guests: number;
+  tents: boolean;
   message: string;
 }
 
-export type InquiryField = 'name' | 'checkIn' | 'checkOut' | 'guests' | 'message';
+export type InquiryField = 'kind' | 'name' | 'checkIn' | 'checkOut' | 'guests' | 'message';
 
 export type InquiryError =
   | 'required'
@@ -29,7 +36,9 @@ export type InquiryError =
   | 'pastDate'
   | 'checkOutBeforeCheckIn'
   | 'tooLong'
-  | 'invalidGuests';
+  | 'invalidGuests'
+  | 'guestsOverDay'
+  | 'guestsOverNight';
 
 export type ValidationResult =
   | { ok: true; value: Inquiry }
@@ -39,10 +48,15 @@ export const LIMITS = {
   nameMax: 80,
   messageMax: 500,
   guestsMin: 1,
-  guestsMax: 30,
+  /** Máximo de personas por tipo de visita, según las tarifas del rancho. */
+  guestsMax: { pasadia: 45, estadia: 16 } satisfies Record<VisitKind, number>,
 } as const;
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+export function isVisitKind(value: string): value is VisitKind {
+  return value === 'pasadia' || value === 'estadia';
+}
 
 /** Devuelve la fecha como número de días desde la época, o null si no es válida. */
 export function parseIsoDate(value: string): number | null {
@@ -74,36 +88,50 @@ function clean(value: string): string {
 export function validateInquiry(input: InquiryInput, today: string = todayIso()): ValidationResult {
   const errors: Partial<Record<InquiryField, InquiryError>> = {};
 
+  const kind = isVisitKind(input.kind) ? input.kind : null;
+  if (!kind) errors.kind = 'required';
+
   const name = clean(input.name);
   if (!name) errors.name = 'required';
   else if (name.length > LIMITS.nameMax) errors.name = 'tooLong';
 
   const todayDay = parseIsoDate(today);
   const inDay = input.checkIn ? parseIsoDate(input.checkIn) : null;
-  const outDay = input.checkOut ? parseIsoDate(input.checkOut) : null;
 
   if (!input.checkIn) errors.checkIn = 'required';
   else if (inDay === null) errors.checkIn = 'invalidDate';
   else if (todayDay !== null && inDay < todayDay) errors.checkIn = 'pastDate';
 
-  if (!input.checkOut) errors.checkOut = 'required';
-  else if (outDay === null) errors.checkOut = 'invalidDate';
-  else if (inDay !== null && outDay <= inDay) errors.checkOut = 'checkOutBeforeCheckIn';
+  // La salida solo aplica a la estadía; en pasadía se ignora.
+  if (kind === 'estadia') {
+    const outDay = input.checkOut ? parseIsoDate(input.checkOut) : null;
+    if (!input.checkOut) errors.checkOut = 'required';
+    else if (outDay === null) errors.checkOut = 'invalidDate';
+    else if (inDay !== null && outDay <= inDay) errors.checkOut = 'checkOutBeforeCheckIn';
+  }
 
   const guestsText = input.guests.trim();
   const guests = Number(guestsText);
   if (!guestsText) errors.guests = 'required';
-  else if (!Number.isInteger(guests) || guests < LIMITS.guestsMin || guests > LIMITS.guestsMax) {
-    errors.guests = 'invalidGuests';
-  }
+  else if (!Number.isInteger(guests) || guests < LIMITS.guestsMin) errors.guests = 'invalidGuests';
+  else if (kind === 'pasadia' && guests > LIMITS.guestsMax.pasadia) errors.guests = 'guestsOverDay';
+  else if (kind === 'estadia' && guests > LIMITS.guestsMax.estadia) errors.guests = 'guestsOverNight';
 
   const message = clean(input.message);
   if (message.length > LIMITS.messageMax) errors.message = 'tooLong';
 
-  if (Object.keys(errors).length > 0) return { ok: false, errors };
+  if (Object.keys(errors).length > 0 || !kind) return { ok: false, errors };
   return {
     ok: true,
-    value: { name, checkIn: input.checkIn, checkOut: input.checkOut, guests, message },
+    value: {
+      kind,
+      name,
+      checkIn: input.checkIn,
+      checkOut: kind === 'estadia' ? input.checkOut : '',
+      guests,
+      tents: input.tents,
+      message,
+    },
   };
 }
 
@@ -127,25 +155,34 @@ export function formatDate(iso: string, lang: Lang): string {
 }
 
 export function buildMessage(inquiry: Inquiry, lang: Lang): string {
-  const nights = nightsBetween(inquiry.checkIn, inquiry.checkOut);
-  const arrive = formatDate(inquiry.checkIn, lang);
-  const leave = formatDate(inquiry.checkOut, lang);
-  const lines =
-    lang === 'es'
-      ? [
-          `Hola, soy ${inquiry.name}. Me interesa alquilar Villa María.`,
-          `Llegada: ${arrive}`,
-          `Salida: ${leave} (${nights} ${nights === 1 ? 'noche' : 'noches'})`,
-          `Personas: ${inquiry.guests}`,
-          '¿Está disponible y cuál sería el precio?',
-        ]
-      : [
-          `Hi, I'm ${inquiry.name}. I'm interested in renting Villa María.`,
-          `Check-in: ${arrive}`,
-          `Check-out: ${leave} (${nights} ${nights === 1 ? 'night' : 'nights'})`,
-          `Guests: ${inquiry.guests}`,
-          'Is it available, and what would the price be?',
-        ];
+  const es = lang === 'es';
+  const lines: string[] = [];
+  if (inquiry.kind === 'pasadia') {
+    lines.push(
+      es
+        ? `Hola, soy ${inquiry.name}. Me interesa un pasadía en Rancho Villa María.`
+        : `Hi, I'm ${inquiry.name}. I'm interested in a day pass at Rancho Villa María.`,
+      es ? `Fecha: ${formatDate(inquiry.checkIn, lang)}` : `Date: ${formatDate(inquiry.checkIn, lang)}`,
+      es ? `Personas: ${inquiry.guests}` : `Guests: ${inquiry.guests}`,
+    );
+  } else {
+    const nights = nightsBetween(inquiry.checkIn, inquiry.checkOut);
+    const nightsText = es ? `${nights} ${nights === 1 ? 'noche' : 'noches'}` : `${nights} ${nights === 1 ? 'night' : 'nights'}`;
+    lines.push(
+      es
+        ? `Hola, soy ${inquiry.name}. Me interesa una estadía en Rancho Villa María.`
+        : `Hi, I'm ${inquiry.name}. I'm interested in an overnight stay at Rancho Villa María.`,
+      es ? `Llegada: ${formatDate(inquiry.checkIn, lang)}` : `Check-in: ${formatDate(inquiry.checkIn, lang)}`,
+      es
+        ? `Salida: ${formatDate(inquiry.checkOut, lang)} (${nightsText})`
+        : `Check-out: ${formatDate(inquiry.checkOut, lang)} (${nightsText})`,
+      es ? `Personas: ${inquiry.guests}` : `Guests: ${inquiry.guests}`,
+    );
+  }
+  if (inquiry.tents) {
+    lines.push(es ? 'También me interesan las casas de campaña.' : "I'm also interested in the tents.");
+  }
+  lines.push(es ? '¿Está disponible esa fecha?' : 'Is that date available?');
   if (inquiry.message) lines.push('', inquiry.message);
   return lines.join('\n');
 }

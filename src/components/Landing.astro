@@ -2,7 +2,7 @@
 import { Picture, getImage } from 'astro:assets';
 import Station from './Station.astro';
 import Icon from './Icon.astro';
-import { AMENITIES, HERO_PHOTO, HERO_SLIDES, PLACES, STATIONS, VILLA } from '../data/villa';
+import { AMENITIES, HERO_PHOTO, HERO_SLIDES, PLACES, RATES, STATIONS, VILLA } from '../data/villa';
 import { LIMITS, whatsappUrl, type Lang } from '../lib/inquiry';
 import { QUALITY, photo } from '../lib/images';
 import { STRINGS } from '../i18n/strings';
@@ -20,7 +20,9 @@ const directUrl = whatsappUrl(VILLA.whatsapp, t.contact.defaultText);
 const maxKm = Math.max(...PLACES.map((p) => p.km));
 
 // El nombre se anima letra por letra; el texto accesible va completo aparte.
-const titleWords = VILLA.name.split(' ').map((w) => Array.from(w));
+const titleWords = VILLA.shortName.split(' ').map((w) => Array.from(w));
+const prefix = VILLA.name.replace(VILLA.shortName, '').trim();
+const money = (n: number) => `${t.essentials.currency}${n.toLocaleString('en-US')}`;
 let letterIndex = 0;
 
 // Imagen para compartir en WhatsApp / redes (1200×630).
@@ -111,6 +113,7 @@ const jsonLd = {
           <div class="hero__card">
             <h1 class="hero__title" id="hero-title">
               <span class="sr-only">{VILLA.name}</span>
+              <span class="hero__prefix" aria-hidden="true">{prefix}</span>
               <span class="hero__letters" aria-hidden="true">
                 {
                   titleWords.map((word) => (
@@ -160,6 +163,7 @@ const jsonLd = {
               </li>
             ))
           }
+          <li><a href="#tarifas" data-nav="tarifas">{t.essentials.ratesTitle}</a></li>
           <li><a href="#ubicacion" data-nav="ubicacion">{t.location.title}</a></li>
           <li class="nav-cta"><a href="#consultar">{t.sticky}</a></li>
         </ul>
@@ -186,13 +190,38 @@ const jsonLd = {
               ))
             }
           </ul>
-          <aside class="price reveal">
-            <h3>{t.essentials.priceTitle}</h3>
-            <p>{t.essentials.priceText}</p>
-            <a class="button button--lime" href="#consultar">{t.sticky}</a>
-            <p class="muted">{t.essentials.rulesNote}</p>
-          </aside>
+          <p class="muted includes__note reveal">{t.essentials.rulesNote}</p>
         </div>
+      </section>
+
+      <section class="section rates" id="tarifas" aria-labelledby="tarifas-title" data-station>
+        <div class="section__head reveal">
+          <h2 id="tarifas-title">{t.essentials.ratesTitle}</h2>
+          <p class="section__lead">{t.essentials.ratesLead}</p>
+        </div>
+        <div class="rates__grid">
+          {
+            RATES.map((r) => (
+              <article class={`rate rate--${r.kind} reveal`} aria-labelledby={`rate-${r.kind}`}>
+                <h3 id={`rate-${r.kind}`}>{r.name[lang]}</h3>
+                <p class="rate__price">
+                  <span class="rate__amount">{money(r.price)}</span>
+                  <span class="rate__unit">{r.unit[lang]}</span>
+                </p>
+                <ul class="rate__details">
+                  {r.details[lang].map((d) => <li>{d}</li>)}
+                </ul>
+                <a class="button button--wide" href="#consultar" data-book={r.kind}>
+                  {t.essentials.book} {r.name[lang].toLowerCase()}
+                </a>
+              </article>
+            ))
+          }
+        </div>
+        <p class="muted rates__note reveal">
+          <Icon name="tent" />
+          {t.essentials.tentsNote}
+        </p>
       </section>
 
       <section class="section location" id="ubicacion" aria-labelledby="ubicacion-title" data-station>
@@ -258,6 +287,20 @@ const jsonLd = {
           <input type="hidden" name="text" value={t.contact.defaultText} />
           <p class="form__summary" id="form-summary" role="alert" hidden>{t.contact.errorsSummary}</p>
 
+          <fieldset class="field segmented">
+            <legend>{t.contact.kind}</legend>
+            <div class="segmented__options">
+              <label class="segmented__option">
+                <input type="radio" name="kind" value="estadia" data-field="kind" checked />
+                <span>{t.contact.kinds.estadia}</span>
+              </label>
+              <label class="segmented__option">
+                <input type="radio" name="kind" value="pasadia" data-field="kind" />
+                <span>{t.contact.kinds.pasadia}</span>
+              </label>
+            </div>
+          </fieldset>
+
           <div class="field">
             <label for="f-name">{t.contact.name}</label>
             <input id="f-name" data-field="name" autocomplete="name" maxlength={LIMITS.nameMax} required aria-describedby="f-name-error" />
@@ -266,11 +309,11 @@ const jsonLd = {
 
           <div class="field-row">
             <div class="field">
-              <label for="f-in">{t.contact.checkIn}</label>
+              <label for="f-in" data-label-estadia={t.contact.checkIn} data-label-pasadia={t.contact.date}>{t.contact.checkIn}</label>
               <input id="f-in" data-field="checkIn" type="date" required aria-describedby="f-in-error" />
               <p class="field__error" id="f-in-error" hidden></p>
             </div>
-            <div class="field">
+            <div class="field" data-only="estadia">
               <label for="f-out">{t.contact.checkOut}</label>
               <input id="f-out" data-field="checkOut" type="date" required aria-describedby="f-out-error" />
               <p class="field__error" id="f-out-error" hidden></p>
@@ -279,9 +322,15 @@ const jsonLd = {
 
           <div class="field field--short">
             <label for="f-guests">{t.contact.guests}</label>
-            <input id="f-guests" data-field="guests" type="number" inputmode="numeric" min={LIMITS.guestsMin} max={LIMITS.guestsMax} step="1" required aria-describedby="f-guests-error" />
+            <input id="f-guests" data-field="guests" type="number" inputmode="numeric" min={LIMITS.guestsMin} max={LIMITS.guestsMax.estadia} step="1" required aria-describedby="f-guests-hint f-guests-error" data-max-estadia={LIMITS.guestsMax.estadia} data-max-pasadia={LIMITS.guestsMax.pasadia} />
+            <p class="field__hint" id="f-guests-hint" data-hint-estadia={t.contact.guestsHint.estadia} data-hint-pasadia={t.contact.guestsHint.pasadia}>{t.contact.guestsHint.estadia}</p>
             <p class="field__error" id="f-guests-error" hidden></p>
           </div>
+
+          <label class="check" for="f-tents">
+            <input id="f-tents" type="checkbox" data-field="tents" />
+            <span>{t.contact.tents}</span>
+          </label>
 
           <div class="field">
             <label for="f-msg">{t.contact.message} <span class="muted">({t.contact.optional})</span></label>
